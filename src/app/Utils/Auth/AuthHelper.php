@@ -2,13 +2,17 @@
 
 namespace app\Utils\Auth;
 
+use App\Admin;
 use Carbon\Carbon;
 use Illuminate\Auth\AuthenticationException;
+use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Token;
 
 class AuthHelper {
-	public function verifyToken(?string $token) {
+	public function parse(?string $token) : Token
+	{
 		if (empty($token)) {
 			throw new AuthenticationException('用户未登录');
 		}
@@ -19,10 +23,21 @@ class AuthHelper {
 			$verify = false;
 		}
 		throw_if(!$verify, AuthenticationException::class, '登录错误');
-		throw_if(
-			$jwtToken->getClaim('expire_in') < Carbon::now()->subHours(8),
-			AuthenticationException::class,
-			'登录已过期，请重新登录'
-		);
+		return $jwtToken;
+	}
+
+	public function sign(Admin $admin) : Token
+	{
+		$signer = new Sha256();
+		$authcode = uniqid();
+		$admin->authcode = $authcode;
+		$admin->save();
+		$token = (new Builder())
+			->set('userid', $admin->id)
+			->set('authcode', $authcode)
+			->set('expire_in', Carbon::now()->addHours(8))
+			->sign($signer, env('APP_SECURE_TOKEN'))
+			->getToken();
+		return $token;
 	}
 }

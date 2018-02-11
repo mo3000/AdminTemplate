@@ -5,6 +5,7 @@ namespace App;
 
 use App\Service\User\CurrentUser;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Admin extends Model {
 	protected $table = 'admin';
@@ -21,4 +22,60 @@ class Admin extends Model {
 	protected $hidden = [
 		'password',
 	];
+
+	public function hasRole(string $rolename) : bool {
+		$role = Role::where('name', $rolename)
+			->first();
+		if (empty($role)) {
+			return false;
+		}
+		return DB::table('admin_role')
+			->where('adminid', $this->id)
+			->where('roleid', $role->id)
+			->exists();
+	}
+
+	public function roles(bool $idOnly=false) {
+		return DB::table('admin_role as ar')
+			->leftJoin(
+				'roles as r',
+				'ar.roleid',
+				'=',
+				'r.id'
+			)
+			->select('id', 'name')
+			->where('ar.adminid', $this->id)
+			->get()
+			->when($idOnly, function ($c) {
+				return $c->pluck('id');
+			})
+			->toArray();
+	}
+
+	public function syncRoles(array $roles)
+	{
+		$currentRoles = $this->roles(true);
+		$new = array_diff($roles, $currentRoles);
+		$old = array_diff($currentRoles, $roles);
+		if (count($old) > 0) {
+			DB::table('admin_role')
+				->where('adminid', $this->id)
+				->whereIn('roleid', $roles)
+				->delete();
+		}
+		if (count($new) > 0) {
+			$adminid = $this->id;
+			DB::table('admin_role')
+				->insert(
+					collect($roles)
+					->map(function ($item) use ($adminid) {
+						return ['adminid' => $adminid, 'roleid' => $item];
+					})
+					->reject(function ($item) {
+						return empty($item);
+					})
+					->toArray()
+				);
+		}
+	}
 }

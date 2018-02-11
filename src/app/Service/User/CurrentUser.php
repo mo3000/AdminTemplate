@@ -6,25 +6,31 @@ use App\Admin;
 use Illuminate\Auth\AuthenticationException;
 
 class CurrentUser {
-	private $id;
-	private $name;
-	private $nickname;
-	private $realname;
+	private $admin;
 
 	public function getNickname() : string {
-		return $this->nickname;
+		return $this->admin->nickname;
 	}
 
 	public function getRealname() : string {
-		return $this->realname;
+		return $this->admin->realname;
 	}
 
 	public function getId() {
-		return $this->id;
+		return $this->admin->id;
 	}
 
 	public function getName() {
-		return $this->name;
+		return $this->admin->name;
+	}
+
+	public function getAuthcode() {
+		return $this->admin->authcode;
+	}
+
+	public function getAdmin()
+	{
+		return $this->admin;
 	}
 
 	public function __construct($id) {
@@ -32,11 +38,6 @@ class CurrentUser {
 		if (empty($admin)) {
 			throw new AuthenticationException('user not found: '.$id);
 		}
-		$this->id = $id;
-		$this->name = $admin->name;
-		$this->nickname = $admin->nickname;
-		$this->realname = $admin->realname;
-
+		$this->admin = $admin;
 	}
-
 }

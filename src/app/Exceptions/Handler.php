@@ -2,8 +2,13 @@
 
 namespace App\Exceptions;
 
+use App\Utils\Format\JsonResponse;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 
 class Handler extends ExceptionHandler
 {
@@ -48,6 +53,22 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+    	if ($exception instanceof AuthenticationException) {
+    		return $this->jsonResponse(new JsonResponse(-2, $exception->getMessage()));
+	    } else if ($exception instanceof AuthorizationException) {
+    		return $this->jsonResponse(new JsonResponse(-3, '无权限查看或操作此功能'));
+	    } else if ($exception instanceof ValidationException) {
+		    return $this->jsonResponse(new JsonResponse(-4, '', $exception->errors()));
+	    }
         return parent::render($request, $exception);
+    }
+
+    public function jsonResponse(\JsonSerializable $object)
+    {
+    	return response()
+		    ->json($object)
+		    ->header('Access-Control-Allow-Origin', '*')
+		    ->header("Access-Control-Allow-Methods" , "GET,POST,PUT,DELETE,OPTIONS")
+		    ->header("Access-Control-Allow-Headers","Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
     }
 }

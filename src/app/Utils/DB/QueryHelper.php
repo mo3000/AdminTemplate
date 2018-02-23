@@ -15,13 +15,12 @@ class QueryHelper {
 		$this->request = resolve(Request::class);
 	}
 
-	public function like(string $fieldname, string $requestFieldname='')
+	public function like(string $fieldname, ?string $requestFieldname='')
 	{
 		$realFieldname = empty($requestFieldname) ?
 			$fieldname : $requestFieldname;
-
-		if (!empty($this->request->input($realFieldname))) {
-			$this->query = $this->query->where(
+		if ($this->request->filled($realFieldname)) {
+			$this->query->where(
 				$fieldname,
 				'like',
 				'%'.$this->request->input($realFieldname).'%'
@@ -31,7 +30,7 @@ class QueryHelper {
 		return $this;
 	}
 
-	public function equal(string $fieldname, string $requestFieldname='', ?\Closure $func=null)
+	public function equal(string $fieldname, ?string $requestFieldname='', ?\Closure $func=null)
 	{
 		$realFieldname = empty($requestFieldname) ?
 			$fieldname : $requestFieldname;
@@ -40,12 +39,12 @@ class QueryHelper {
 				: $this->request->input($realFieldname);
 
 		if (!empty($value) && $value != -1) {
-			$this->query = $this->query->where($fieldname, $value);
+			$this->query->where($fieldname, $value);
 		}
 		return $this;
 	}
 
-	public function compare(string $symbol, string $fieldname, string $requestFieldname='', ?\Closure $func=null)
+	public function compare(string $symbol, string $fieldname, ?string $requestFieldname='', ?\Closure $func=null)
 	{
 		$realFieldname = empty($requestFieldname) ?
 			$fieldname : $requestFieldname;
@@ -54,7 +53,7 @@ class QueryHelper {
 			: $this->request->input($realFieldname);
 
 		if (!empty($value) && $value != -1) {
-			$this->query = $this->query->where($fieldname, $symbol, $value);
+			$this->query->where($fieldname, $symbol, $value);
 		}
 		return $this;
 	}
@@ -62,7 +61,7 @@ class QueryHelper {
 	public function in(string $fieldname, ?array $values)
 	{
 		if (is_array($values) && count($values) > 0) {
-			$this->query = $this->query->whereIn($fieldname, $values);
+			$this->query->whereIn($fieldname, $values);
 		}
 	}
 

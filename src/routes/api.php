@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Service\AdminRoute;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,4 +13,4 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::any('/auth/admin/list', 'Auth\AdminController@list');
+AdminRoute::common();

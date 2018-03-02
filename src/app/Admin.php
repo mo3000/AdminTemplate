@@ -52,6 +52,21 @@ class Admin extends Model {
 			->toArray();
 	}
 
+	public function hasPermission(string $permission) : bool
+	{
+		return DB::table('role_permission as rp')
+			->leftJoin(
+				'permissions as p',
+				'rp.permissionsid',
+				'=',
+				'p.id'
+			)
+			->whereRaw("rp.roleid in (select roleid from role_permission 
+			where adminid=".$this->id.")")
+			->where('p.name', $permission)
+			->exists();
+	}
+
 	public function syncRoles(array $roles)
 	{
 		$currentRoles = $this->roles(true);

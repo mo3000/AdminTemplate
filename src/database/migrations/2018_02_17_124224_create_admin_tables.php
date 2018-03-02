@@ -31,7 +31,7 @@ class CreateAdminTables extends Migration
 	    Schema::create('roles', function (Blueprint $table) {
 		    $table->increments('id');
 		    $table->text('name');
-		    $table->text('display_name');
+		    $table->text('display_name')->nullable();
 		    $table->text('description')->nullable();
 		    $table->string('headimg', 256);
 		    $table->timestamps();
@@ -41,7 +41,7 @@ class CreateAdminTables extends Migration
 	    Schema::create('permissions', function (Blueprint $table) {
 		    $table->increments('id');
 		    $table->text('name');
-		    $table->text('display_name');
+		    $table->text('display_name')->nullable();
 		    $table->text('description')->nullable();
 		    $table->timestamps();
 		    $table->unique('name');
@@ -50,7 +50,7 @@ class CreateAdminTables extends Migration
 	    Schema::create('menus', function (Blueprint $table) {
 		    $table->increments('id');
 		    $table->integer('permissionid');
-		    $table->text('display_name');
+		    $table->text('display_name')->nullable();
 		    $table->text('description')->nullable();
 		    $table->string('headimg', 256);
 		    $table->timestamps();

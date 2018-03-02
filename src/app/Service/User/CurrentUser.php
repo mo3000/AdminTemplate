@@ -4,6 +4,7 @@ namespace App\Service\User;
 
 use App\Admin;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Support\Facades\DB;
 
 class CurrentUser {
 	private $admin;
@@ -32,6 +33,7 @@ class CurrentUser {
 	{
 		return $this->admin;
 	}
+
 
 	public function __construct($id) {
 		$admin = Admin::find($id);

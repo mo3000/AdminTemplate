@@ -12,6 +12,7 @@ use App\Utils\Format\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 
 class AdminController extends Controller {
 	public function list(Request $request)

@@ -5,8 +5,8 @@ namespace App\Service;
 
 use Illuminate\Support\Facades\Route;
 
-class AdminRoute {
-	public static function common()
+class AdminCommenRoutes {
+	public static function bind()
 	{
 		Route::any('/auth/admin/list', 'Auth\AdminController@list');
 		Route::any('/auth/admin/edit', 'Auth\AdminController@edit');

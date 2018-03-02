@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
-use App\Service\AdminRoute;
+use App\Service\AdminCommenRoutes;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,4 +13,4 @@ use App\Service\AdminRoute;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-AdminRoute::common();
+AdminCommenRoutes::bind();

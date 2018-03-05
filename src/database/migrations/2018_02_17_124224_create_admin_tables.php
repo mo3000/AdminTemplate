@@ -17,11 +17,11 @@ class CreateAdminTables extends Migration
 		    $table->increments('id');
 		    $table->string('name', 64);
 		    $table->text('password');
-		    $table->string('authcode', 8);
+		    $table->string('authcode', 8)->nullable();
 		    $table->string('nickname', 64);
-		    $table->string('realname', 64);
-		    $table->string('qq', 32);
-		    $table->string('phone', 11);
+		    $table->string('realname', 64)->nullable();
+		    $table->string('qq', 32)->nullable();
+		    $table->string('phone', 11)->nullable();
 		    $table->text('headimg')->nullable();
 		    $table->tinyInteger('status')->default(1);
 		    $table->timestamps();
@@ -33,7 +33,6 @@ class CreateAdminTables extends Migration
 		    $table->text('name');
 		    $table->text('display_name')->nullable();
 		    $table->text('description')->nullable();
-		    $table->string('headimg', 256);
 		    $table->timestamps();
 		    $table->unique('name');
 	    });
@@ -52,7 +51,6 @@ class CreateAdminTables extends Migration
 		    $table->integer('permissionid');
 		    $table->text('display_name')->nullable();
 		    $table->text('description')->nullable();
-		    $table->string('headimg', 256);
 		    $table->timestamps();
 		    $table->foreign('permissionid')
 		        ->references('id')->on('permissions')->onDelete('cascade');
@@ -79,6 +77,24 @@ class CreateAdminTables extends Migration
 		    $table->foreign('permissionid')
 		          ->references('id')->on('permissions')->onDelete('cascade');
 	    });
+
+	    \Illuminate\Support\Facades\DB::table('roles')
+		    ->insert(
+		    	[
+		    		'name' => 'superadmin',
+				    'display_name' => '超级管理员',
+			    ]
+		    );
+
+	    \Illuminate\Support\Facades\DB::table('admin')
+		    ->insert(
+		    	[
+					'name' => 'admin',
+					'password' => \Illuminate\Support\Facades\Hash::make(env("DEFAULT_ADMIN_PASSWORD")),
+					'nickname' => '超级管理员',
+					'headimg' => ''
+			    ]
+		    );
     }
 
     /**

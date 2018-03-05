@@ -92,7 +92,14 @@ class CreateAdminTables extends Migration
 					'name' => 'admin',
 					'password' => \Illuminate\Support\Facades\Hash::make(env("DEFAULT_ADMIN_PASSWORD")),
 					'nickname' => '超级管理员',
-					'headimg' => ''
+			    ]
+		    );
+
+	    \Illuminate\Support\Facades\DB::table('admin_role')
+		    ->insert(
+		    	[
+		    		'roleid' => 1,
+				    'adminid' => 1
 			    ]
 		    );
     }

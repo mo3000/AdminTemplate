@@ -6,7 +6,7 @@ use App\Admin;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\DB;
 
-class CurrentUser {
+class CurrentAdmin {
 	private $admin;
 
 	public function getNickname() : string {

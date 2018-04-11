@@ -10,10 +10,11 @@ use App\Utils\DB\QueryHelper;
 use App\Utils\Format\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Psy\Util\Json;
 
 class RbacController {
 	public function roleList(Request $request) {
-		$list = (new QueryHelper(DB::table('douniwan')))
+		$list = (new QueryHelper(DB::table('roles')))
 			->like('name')
 			->like('display_name', $request->input('display_name'))
 			->endHelper()
@@ -22,7 +23,7 @@ class RbacController {
 		return new JsonResponse(0, '', $list);
 	}
 
-	public function roleNew(Request $request) {
+	public function roleAdd(Request $request) {
 		$request->validate(
 			[
 				'name' => 'required|unique:roles',
@@ -67,8 +68,12 @@ class RbacController {
 			->like('name', $request->input('name'))
 			->like('display_name', $request->input('display_name'))
 			->endHelper()
-			->orderBy('created_at', 'desc')
-			->paginate();
+			->orderBy('created_at', 'desc');
+		if ($request->input('no_pagination') == 1) {
+			$list = $list->paginate();
+		} else {
+			$list = $list->get();
+		}
 		return new JsonResponse(0, '', $list);
 	}
 
@@ -116,20 +121,22 @@ class RbacController {
 
 	public function rolePermissionList(Request $request)
 	{
-		$list = (new QueryHelper(
-			DB::table('role_permission as rp')
-				->select('p.id', 'p.name', 'p.display_name')
+		$list = DB::table('role_permission as rp')
+				->select('p.id as pid', 'p.name', 'p.display_name', 'm.parentid', 'm.id')
 				->leftJoin(
 					'permissions as p',
 					'rp.permissionid',
 					'=',
-					'p.id'
+					'pid'
 				)
-		))
-			->like('name', $request->input('name'))
-			->like('display_name', $request->input('display_name'))
-			->endHelper()
-			->paginate();
+			->leftJoin(
+				'menus as m',
+				'pid',
+				'=',
+				'm.permissionid'
+			)
+			->where('rp.id', $request->input('roleid'))
+			->get();
 		return new JsonResponse(0, '', $list);
 	}
 
@@ -143,7 +150,18 @@ class RbacController {
 		);
 		$role = Role::where('id', $request->input('roleid'))
 			->first();
-		$role->syncPermissions($request->input('permissionids'));
+		if (empty($role)) {
+			return new JsonResponse(-1, 'role 不存在: '.$request->input('roleid'));
+		}
+		DB::beginTransaction();
+		try {
+			$role->syncPermissions($request->input('permissionids'));
+			DB::commit();
+		} catch (\Exception $e) {
+			DB::rollback();
+			return new JsonResponse(-1, $e->getMessage());
+		}
+
 		return new JsonResponse(0);
 	}
 
@@ -177,7 +195,18 @@ class RbacController {
 
 		$admin = Admin::where('id', $request->input('adminid'))
 		            ->first();
-		$admin->syncRoles($request->input('roles'));
+		if (empty($admin)) {
+			return new JsonResponse(-1, 'admin不存在: '.$request->input('adminid'));
+		}
+		DB::beginTransaction();
+		try {
+			$admin->syncRoles($request->input('roles'));
+			DB::commit();
+		} catch (\Exception $e) {
+			DB::rollback();
+			return new JsonResponse(-1, $e->getMessage());
+		}
+
 		return new JsonResponse(0);
 	}
 }

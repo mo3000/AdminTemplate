@@ -1,8 +1,9 @@
 <?php
 
-namespace app\Utils\Auth;
+namespace App\Utils\Auth;
 
 use App\Admin;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Auth\AuthenticationException;
 use Lcobucci\JWT\Builder;
@@ -26,7 +27,7 @@ class AuthHelper {
 		return $jwtToken;
 	}
 
-	public function sign(Admin $admin) : Token
+	public function signAdmin(Admin $admin) : Token
 	{
 		$signer = new Sha256();
 		$authcode = uniqid();
@@ -36,6 +37,17 @@ class AuthHelper {
 			->set('userid', $admin->id)
 			->set('authcode', $authcode)
 			->set('expire_in', Carbon::now()->addHours(8))
+			->sign($signer, env('APP_SECURE_TOKEN'))
+			->getToken();
+		return $token;
+	}
+
+	public function signUserWechatWeb(User $user) : Token
+	{
+		$signer = new Sha256();
+		$user->save();
+		$token = (new Builder())
+			->set('userid', $user->id)
 			->sign($signer, env('APP_SECURE_TOKEN'))
 			->getToken();
 		return $token;

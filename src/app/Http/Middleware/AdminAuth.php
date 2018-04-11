@@ -1,10 +1,10 @@
 <?php
 
-namespace app\Http\Middleware;
+namespace App\Http\Middleware;
 
 use App\Admin;
-use App\Service\User\CurrentUser;
-use app\Utils\Auth\AuthHelper;
+use App\Service\User\CurrentAdmin;
+use App\Utils\Auth\AuthHelper;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Route;
 
 class AdminAuth {
 	private $noAuthRoutes = [
-		'api/auth/login',
-		'api/auth/logout',
+		'api/auth/user/login',
+//		'api/auth/user/logout',
 		'api/auth/menus'
 	];
 
@@ -23,7 +23,7 @@ class AdminAuth {
 	{
 		return $next($request)
 			->header('Access-Control-Allow-Origin', '*')
-			->header("Access-Control-Allow-Headers","Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+			->header("Access-Control-Allow-Headers", "Content-Type");
 	}
 
 	public function handle(Request $request, Closure $next)
@@ -31,8 +31,8 @@ class AdminAuth {
 		if (!in_array($request->path(), $this->noAuthRoutes)
 		    && substr($request->path(), 0, strlen('api/internal/') != 'api/internal/')) {
 			if (env('USER_FAKE')) {
-				$adminService = new CurrentUser(1);
-				Admin::setCurrentUser($adminService);
+				$adminService = new CurrentAdmin(1);
+				Admin::setCurrentAdmin($adminService);
 				return $this->nextCall($request, $next);
 			} else {
 				$auth = new AuthHelper();
@@ -42,7 +42,7 @@ class AdminAuth {
 					AuthenticationException::class,
 					'登录已过期，请重新登录'
 				);
-				$adminService = new CurrentUser($jwtToken->getClaim('id'));
+				$adminService = new CurrentAdmin($jwtToken->getClaim('userid'));
 				throw_if(
 					$jwtToken->getClaim('authcode') != $adminService->getAuthcode(),
 					AuthenticationException::class,
@@ -55,7 +55,7 @@ class AdminAuth {
 						AuthorizationException::class
 					);
 				}
-				Admin::setCurrentUser($adminService);
+				Admin::setCurrentAdmin($adminService);
 			}
 		}
 		return $this->nextCall($request, $next);

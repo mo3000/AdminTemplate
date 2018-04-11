@@ -3,20 +3,21 @@
 namespace App;
 
 
-use App\Service\User\CurrentUser;
+use App\Service\User\CurrentAdmin;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class Admin extends Model {
 	protected $table = 'admin';
-	private static $currentUser;
+	private static $currentAdmin;
 
-	public static function currentUser() : CurrentUser {
-		return self::$currentUser;
+	public static function currentAdmin() : CurrentAdmin {
+		return self::$currentAdmin;
 	}
 
-	public static function setCurrentUser(CurrentUser $user) {
-		self::$currentUser = $user;
+	public static function setCurrentAdmin(CurrentAdmin $user) {
+		self::$currentAdmin = $user;
 	}
 
 	protected $hidden = [
@@ -50,6 +51,27 @@ class Admin extends Model {
 				return $c->pluck('id');
 			})
 			->toArray();
+	}
+
+	public function saveAsCoach($coachProperties=[])
+	{
+		$this->password = Hash::make(env('DEFAULT_ADMIN_PASSWORD'));
+		//todo 添加教练权限
+
+		$this->save();
+		$this->addRoleByName('coach');
+	}
+
+	public function addRoleByName($rolename)
+	{
+		$role = Role::where('name', $rolename)->first();
+		if (empty($role)) {
+			throw new \RuntimeException("role doesn't exist: $rolename");
+		}
+		DB::table("admin_role")
+			->insert(
+				['adminid' => $this->id, 'roleid' => $role->name]
+			);
 	}
 
 	public function hasPermission(string $permission) : bool

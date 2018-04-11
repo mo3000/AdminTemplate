@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\AdminAuth;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -19,6 +20,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\TrustProxies::class,
+        \App\Http\Middleware\OptionResponse::class,
     ];
 
     /**
@@ -40,7 +42,13 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:240,1',
             'bindings',
+            'admin',
         ],
+
+        'front' => [
+	        'throttle:240,1',
+	        'bindings',
+        ]
     ];
 
     /**
@@ -56,5 +64,6 @@ class Kernel extends HttpKernel
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'admin' => AdminAuth::class,
     ];
 }

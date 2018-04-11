@@ -17,7 +17,7 @@ class CreateAdminTables extends Migration
 		    $table->increments('id');
 		    $table->string('name', 64);
 		    $table->text('password');
-		    $table->string('authcode', 8)->nullable();
+		    $table->text('authcode')->nullable();
 		    $table->string('nickname', 64);
 		    $table->string('realname', 64)->nullable();
 		    $table->string('qq', 32)->nullable();
@@ -48,12 +48,11 @@ class CreateAdminTables extends Migration
 
 	    Schema::create('menus', function (Blueprint $table) {
 		    $table->increments('id');
-		    $table->integer('permissionid');
+		    $table->integer('parentid')->nullable();
 		    $table->text('display_name')->nullable();
 		    $table->text('description')->nullable();
+		    $table->text('html_component')->nullable();
 		    $table->timestamps();
-		    $table->foreign('permissionid')
-		        ->references('id')->on('permissions')->onDelete('cascade');
 	    });
 
 	    Schema::create('admin_role', function (Blueprint $table) {
@@ -65,6 +64,17 @@ class CreateAdminTables extends Migration
 		          ->references('id')->on('roles')->onDelete('cascade');
 	    	$table->foreign('adminid')
 		        ->references('id')->on('admin')->onDelete('cascade');
+	    });
+
+	    Schema::create('role_menu', function (Blueprint $table) {
+		    $table->integer('roleid');
+		    $table->index('roleid');
+		    $table->integer('menuid');
+		    $table->index('menuid');
+		    $table->foreign('roleid')
+		          ->references('id')->on('roles')->onDelete('cascade');
+		    $table->foreign('menuid')
+		          ->references('id')->on('menu')->onDelete('cascade');
 	    });
 
 	    Schema::create('role_permission', function (Blueprint $table) {
@@ -113,9 +123,10 @@ class CreateAdminTables extends Migration
     {
 	    Schema::drop('admin_role');
 	    Schema::drop('role_permission');
+	    Schema::drop('role_menu');
 	    Schema::drop('menus');
 	    Schema::drop('permissions');
 	    Schema::drop('roles');
-        Schema::drop('admin');
+	    Schema::drop('admin');
     }
 }

@@ -10,8 +10,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 
-class Handler extends ExceptionHandler
-{
+class Handler extends ExceptionHandler {
     /**
      * A list of the exception types that are not reported.
      *
@@ -36,39 +35,30 @@ class Handler extends ExceptionHandler
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param  \Exception  $exception
+     * @param  \Exception $exception
      * @return void
      */
-    public function report(Exception $exception)
-    {
+    public function report(Exception $exception) {
         parent::report($exception);
     }
 
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Exception $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
-    {
-    	if ($exception instanceof AuthenticationException) {
-    		return $this->jsonResponse(new JsonResponse(-2, $exception->getMessage()));
-	    } else if ($exception instanceof AuthorizationException) {
-    		return $this->jsonResponse(new JsonResponse(-3, '无权限查看或操作此功能'));
-	    } else if ($exception instanceof ValidationException) {
-		    return $this->jsonResponse(new JsonResponse(-4, '', $exception->errors()));
-	    }
+    public function render($request, Exception $exception) {
+        if ($exception instanceof AuthenticationException) {
+            return JsonResponse::jsonResponse(-2, $exception->getMessage());
+        } else if ($exception instanceof AuthorizationException) {
+            return JsonResponse::jsonResponse(-3, '无权限查看或操作此功能');
+        } else if ($exception instanceof ValidationException) {
+            return JsonResponse::jsonResponse(-4, '', $exception->errors());
+        } else {
+            if (!env('APP_DEBUG')) return JsonResponse::fail('系统错误,请联系管理员');
+        }
         return parent::render($request, $exception);
-    }
-
-    public function jsonResponse(\JsonSerializable $object)
-    {
-    	return response()
-		    ->json($object)
-		    ->header('Access-Control-Allow-Origin', '*')
-		    ->header("Access-Control-Allow-Methods" , "GET,POST,PUT,DELETE,OPTIONS")
-		    ->header("Access-Control-Allow-Headers","Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
     }
 }

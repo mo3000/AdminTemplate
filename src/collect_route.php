@@ -1,5 +1,6 @@
 <?php
 
+
 class Route {
 	public static $actions = [];
 	public static function any($route, $action)

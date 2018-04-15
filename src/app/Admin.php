@@ -70,7 +70,7 @@ class Admin extends Model {
 		}
 		DB::table("admin_role")
 			->insert(
-				['adminid' => $this->id, 'roleid' => $role->name]
+				['adminid' => $this->id, 'roleid' => $role->id]
 			);
 	}
 
@@ -97,14 +97,14 @@ class Admin extends Model {
 		if (count($old) > 0) {
 			DB::table('admin_role')
 				->where('adminid', $this->id)
-				->whereIn('roleid', $roles)
+				->whereIn('roleid', $old)
 				->delete();
 		}
 		if (count($new) > 0) {
 			$adminid = $this->id;
 			DB::table('admin_role')
 				->insert(
-					collect($roles)
+					collect($new)
 					->map(function ($item) use ($adminid) {
 						return ['adminid' => $adminid, 'roleid' => $item];
 					})

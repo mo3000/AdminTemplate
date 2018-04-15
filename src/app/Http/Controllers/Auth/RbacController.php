@@ -174,13 +174,12 @@ class RbacController {
 				  'roles as r',
 				  'ar.roleid',
 				  '=',
-				  'p.id'
+				  'r.id'
 			  )
 		))
-			->like('name', $request->input('name'))
-			->like('display_name', $request->input('display_name'))
+			->equal('adminid', 'id')
 			->endHelper()
-			->paginate();
+			->get();
 		return new JsonResponse(0, '', $list);
 	}
 

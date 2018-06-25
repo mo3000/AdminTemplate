@@ -6,12 +6,13 @@ namespace App\Http\Controllers\Auth;
 use App\Admin;
 use App\Http\Requests\admin\EditSelf;
 use App\Http\Requests\admin\ModifyPassword;
+use App\Service\MenuService;
 use App\Utils\Auth\AuthHelper;
 use App\Utils\Format\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Psy\Util\Json;
 
 class UserController {
 	public function login(Request $request)
@@ -23,7 +24,7 @@ class UserController {
 			]
 		);
 		$admin = Admin::where('name', $request->input('username'))
-			->first();
+		              ->first();
 		if (empty($admin)) {
 			return new JsonResponse(-1, '账号不存在');
 		}
@@ -40,7 +41,7 @@ class UserController {
 	public function logout(Request $request)
 	{
 		Admin::where('id', Admin::currentAdmin()->getId())
-			->update(['authcode' => '']);
+		     ->update(['authcode' => '']);
 		return new JsonResponse(0);
 	}
 
@@ -73,6 +74,17 @@ class UserController {
 			'userid' => $admin->getId(),
 			'username' => $admin->getName(),
 			'realname' => $admin->getRealname(),
+		]);
+	}
+
+	public function menuList(Request $request)
+	{
+		$menuService = new MenuService();
+		$menus = $menuService->getUserMenu($request->input('gymid'));
+		$others = ['auth','periods_lab', 'coach_lab'];
+		return new JsonResponse(0, '', [
+			'project' => Arr::except($menus, $others),
+			'others' => Arr::only($menus, $others)
 		]);
 	}
 }

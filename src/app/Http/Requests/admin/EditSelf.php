@@ -25,7 +25,7 @@ class EditSelf extends FormRequest
     {
         return [
             'realname' => 'required|string|min:3|max:16',
-            'qq' => 'string|min:6|max:16',
+//            'qq' => 'string|min:6|max:16',
             'phone' => 'string|min:6|max:16',
         ];
     }

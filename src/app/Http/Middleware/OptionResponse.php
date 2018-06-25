@@ -14,6 +14,10 @@ class OptionResponse {
 				->header('Access-Control-Allow-Origin', '*')
 				->header("Access-Control-Allow-Headers", "Content-Type");
 		}
-		return $next($request);
+
+		$response = $next($request)
+			->header('Access-Control-Allow-Origin', '*')
+			->header("Access-Control-Allow-Headers", "Content-Type");
+		return $response;
 	}
 }

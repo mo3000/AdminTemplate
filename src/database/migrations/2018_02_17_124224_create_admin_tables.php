@@ -23,7 +23,12 @@ class CreateAdminTables extends Migration
 			$table->string('qq', 32)->nullable();
 			$table->string('phone', 11)->nullable();
 			$table->text('headimg')->nullable();
-			$table->tinyInteger('status')->default(1);
+			$table->smallInteger('status')->default(1);
+			$table->integer('gymid')->nullable();
+			$table->text('serialid')->nullable()->comment('工号');
+			$table->smallInteger('sex')->nullable();
+			$table->date('birthday')->nullable();
+			$table->text('position')->nullable()->comment('职位');
 			$table->timestamps();
 			$table->unique('name');
 		});
@@ -45,7 +50,6 @@ class CreateAdminTables extends Migration
 			$table->text('project_name')->nullable();
 			$table->text('path_name')->nullable();
 			$table->smallInteger('needed')->default(1);
-			$table->timestamps();
 			$table->unique('name');
 		});
 

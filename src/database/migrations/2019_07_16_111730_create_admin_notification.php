@@ -18,6 +18,8 @@ class CreateAdminNotification extends Migration
             $table->string('data')
                 ->comment('内容');
             $table->dateTime('read_at');
+            $table->integer('notifiable_id');
+            $table->string('notifiable_type', 30);
             $table->timestamps();
         });
     }

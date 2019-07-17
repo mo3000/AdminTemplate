@@ -3,11 +3,16 @@
 namespace App;
 
 use App\Models\AdminNotification;
+use App\Models\Auth\AdminRole;
+use App\Models\Auth\Roles;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class Admin extends Authenticatable
 {
+    use Notifiable;
+
+    protected $table = 'admins';
     /**
      * Get the entity's notifications.
      *
@@ -19,11 +24,20 @@ class Admin extends Authenticatable
             ->orderBy('created_at', 'desc');
     }
 
-    protected $fillable = [
-        'name', 'password',
-    ];
+    protected $guarded = [];
 
     protected $hidden = [
         'password',
     ];
+
+    //具有角色
+    public function hasRole(string $rolename) : bool
+    {
+
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Roles::class, 'admin_role', 'adminid', 'roleid');
+    }
 }

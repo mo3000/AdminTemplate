@@ -50,19 +50,22 @@ class CreateUltimateAuth extends Migration
         });
 
         Schema::create('role_permission', function (Blueprint $table) {
-            $table->integer('roleid');
-            $table->integer('permissionid');
+            $table->integer('roleid', false, true);
+            $table->integer('permissionid', false, true);
             $table->foreign('roleid')
                 ->references('id')
                 ->on('roles');
             $table->foreign('permissionid')
                 ->references('id')
                 ->on('permissions');
+            $table->json('extra')
+                ->comment('预留字段');
+            $table->timestamps();
         });
 
         Schema::create('admin_role', function (Blueprint $table) {
-            $table->integer('adminid');
-            $table->integer('roleid');
+            $table->integer('adminid', false, true);
+            $table->integer('roleid', false, true);
             $table->foreign('adminid')
                 ->references('id')
                 ->on('admins');

@@ -55,7 +55,6 @@ class LoginController extends Controller
 
 	public function login(Request $request)
 	{
-		return new JsonResponse(0);
 		$this->validate($request, [
 				$this->username() => 'required',
 				'password' => 'required',

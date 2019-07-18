@@ -2,8 +2,12 @@
 
 namespace App\Exceptions;
 
+use App\Utils\JsonResponse;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
 
 class Handler extends ExceptionHandler
 {
@@ -46,6 +50,13 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+	    if ($exception instanceof AuthenticationException) {
+		    return response(-2, $exception->getMessage());
+	    } else if ($exception instanceof AuthorizationException) {
+		    return JsonResponse::jsonResponse(-3, '无权限查看或操作此功能');
+	    } else if ($exception instanceof ValidationException) {
+    		return response(new JsonResponse(-4, '', $exception->errors()));
+	    }
         return parent::render($request, $exception);
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Utils\JsonResponse;
 use Closure;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Auth;
 
 class RejectIfNotAuthenticated
@@ -18,7 +20,7 @@ class RejectIfNotAuthenticated
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
-            return redirect('/home');
+            throw new AuthorizationException();
         }
 
         return $next($request);

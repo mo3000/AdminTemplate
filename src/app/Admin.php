@@ -33,7 +33,9 @@ class Admin extends Authenticatable
     //具有角色
     public function hasRole(string $rolename) : bool
     {
-
+		return $this->roles()
+			->where('roles.name', $rolename)
+			->exists();
     }
 
     public function roles()

@@ -18,8 +18,6 @@ class JwtGuard implements Guard
 {
 	use GuardHelpers;
 
-	protected $inputKey = 'token';
-
 	public function user()
 	{
 		if (!empty($this->user)) {
@@ -28,28 +26,31 @@ class JwtGuard implements Guard
 		$token = $this->getTokenForRequest();
 		$user = null;
 		if (!empty($token)) {
-			$user = $this->provider->retrieveById($token->getClaim('id'));
+			$user = $this->provider->retrieveById($token->getClaim('sub'));
 		}
 		return $this->user = $user;
 	}
+
+	public function attempt(array $credentials, bool $remember=false) : bool
+    {
+        $user = $this->getProvider()->retrieveByCredentials($credentials);
+        if ($this->getProvider()->validateCredentials($user, $credentials)) {
+            $this->user = $user;
+        }
+        return $this->user != null;
+    }
 
 	public function getTokenForRequest() : ? Token
 	{
 		$request = resolve(Request::class);
 
-		if ($request->filled($this->inputKey)) {
-			$token = $request->input($this->inputKey);
-		}
-
-		if (empty($token)) {
-			$token = $request->bearerToken();
-		}
+		$token = $request->bearerToken();
 
 		if (!empty($token)) {
 			try {
 				$jwtToken = (new Parser())->parse($token);
 				if ($jwtToken->verify(
-					(new Sha256()), config('auth.secretkey'))) {
+					(new Sha256()), config('auth.token_secret_key'))) {
 					return $jwtToken;
 				}
 			} catch (\BadMethodCallException | \InvalidArgumentException $e) {
@@ -64,5 +65,10 @@ class JwtGuard implements Guard
 	{
 		return true;
 	}
+
+	public function __construct($provider)
+    {
+        $this->setProvider($provider);
+    }
 
 }

@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Utils\JsonResponse;
+use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key;
 
 class LoginController extends Controller
 {
@@ -39,8 +43,14 @@ class LoginController extends Controller
 	{
 		$this->clearLoginAttempts($request);
 
-		return $this->authenticated($request, $this->guard()->user())
-			?: redirect()->intended($this->redirectPath());
+		$user = $this->guard()->user();
+
+		return new JsonResponse(0, '', [
+		    'token' => strval((new Builder())
+                ->issuedAt(time())
+                ->relatedTo($user->id)
+                ->getToken((new Sha256()), (new Key(config('auth.token_secret_key')))))
+        ]);
 	}
 
 	protected function authenticated(Request $request, $user)
@@ -86,4 +96,15 @@ class LoginController extends Controller
 	{
 		//
 	}
+
+	public function userinfo(Request $request)
+    {
+        return $request->user();
+    }
+
+    public function __construct()
+    {
+        $this->middleware('requirelogin')->except('login');
+    }
+
 }

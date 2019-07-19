@@ -25,4 +25,9 @@ class JsonResponse implements \JsonSerializable
 			'data' => $this->data
 		];
 	}
+
+	public function toArray()
+    {
+        return $this->jsonSerialize();
+    }
 }

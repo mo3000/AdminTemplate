@@ -15,18 +15,19 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
+            $table->string('username');
             $table->string('realname', 30)
                 ->comment('真实名称');
-            $table->string('password',50);
+            $table->string('password',100);
             $table->timestamps();
         });
+
         Schema::create('admins', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
+            $table->string('username');
             $table->string('realname', 30)
                 ->comment('真实名称');
-            $table->string('password', 50);
+            $table->string('password', 100);
             $table->timestamps();
         });
     }

@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'api',
+        'guard' => 'admin',
         'passwords' => 'users',
     ],
 
@@ -48,7 +48,7 @@ return [
         ],
 
         'admin' => [
-        	'driver' => 'token',
+        	'driver' => 'jwt',
 	        'provider' => 'admins',
 	        'hash' => false,
         ]
@@ -110,4 +110,5 @@ return [
         ],
     ],
 
+    'token_secret_key' => env('token_secret_key', '!dr)sjngHg4m<TFV)a7t5RF%vcs,85'),
 ];

@@ -13,5 +13,7 @@ class RegistAuthRoutes
 	{
 		Route::any('/login', 'Auth\LoginController@login');
 		Route::any('/logout', 'Auth\LoginController@logout');
+		Route::any('/userinfo', 'Auth\LoginController@userinfo');
+//		Route::any('/userinfo', 'Auth\LoginController@userinfo');
 	}
 }

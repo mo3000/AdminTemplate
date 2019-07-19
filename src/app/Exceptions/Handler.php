@@ -41,6 +41,15 @@ class Handler extends ExceptionHandler
         parent::report($exception);
     }
 
+    private function response(JsonResponse $response)
+    {
+        return response()
+            ->json($response->toArray())
+            ->header('Access-Control-Allow-Origin', '*')
+            ->header("Access-Control-Allow-Headers",
+                "x-requested-with,Content-Type,Bearer-Token");
+    }
+
     /**
      * Render an exception into an HTTP response.
      *
@@ -51,12 +60,15 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
 	    if ($exception instanceof AuthenticationException) {
-		    return response(-2, $exception->getMessage());
+		    return $this->response(new JsonResponse(-2, $exception->getMessage()));
 	    } else if ($exception instanceof AuthorizationException) {
-		    return JsonResponse::jsonResponse(-3, '无权限查看或操作此功能');
+		    return $this->response(new JsonResponse(-3, '无权限查看或操作此功能'));
 	    } else if ($exception instanceof ValidationException) {
-    		return response(new JsonResponse(-4, '', $exception->errors()));
-	    }
+    		return $this->response(new JsonResponse(-4, '', $exception->errors()));
+	    } else {
+	        dd($exception);
+	        return $this->response(new JsonResponse(-1, $exception->getMessage()));
+        }
         return parent::render($request, $exception);
     }
 }

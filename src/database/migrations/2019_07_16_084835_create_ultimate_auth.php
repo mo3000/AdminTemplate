@@ -84,6 +84,7 @@ class CreateUltimateAuth extends Migration
     {
         Schema::dropIfExists('role_permission');
         Schema::dropIfExists('user_role');
+        Schema::dropIfExists('admin_role');
         Schema::dropIfExists('roles');
         Schema::dropIfExists('permissions');
     }

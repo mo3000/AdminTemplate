@@ -15,7 +15,7 @@ class CreateAdminNotification extends Migration
     {
         Schema::create('admin_notification', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('data')
+            $table->json('data')
                 ->comment('内容');
             $table->dateTime('read_at');
             $table->integer('notifiable_id');

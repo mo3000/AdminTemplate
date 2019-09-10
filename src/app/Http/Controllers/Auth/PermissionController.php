@@ -48,7 +48,7 @@ class PermissionController extends Controller
     	$this->validate($request, [
     		'parentid' => 'nullable',
 		    'alias' => 'nullable',
-		    'display_name' => $request->input('display_name'),
+		    'display_name' => 'required',
 		    'hidden_on_reject' => 'required|in:0,1',
 		    'in_menu_tree' => 'required|in:0,1',
 	    ]);
@@ -57,13 +57,13 @@ class PermissionController extends Controller
     	try {
 		    if ($request->filled("id")) {
 			    Permissions::where('id', $request->input('id'))
-			               ->update(
-				               [
-					               'name' => $request->input('name'),
-					               'alias' => $request->input('alias'),
-					               'updated_at' => Carbon::now()->toDateTimeString(),
-				               ]
-			               );
+                   ->update(
+                       [
+                           'name' => $request->input('name'),
+                           'alias' => $request->input('alias'),
+                           'updated_at' => Carbon::now()->toDateTimeString(),
+                       ]
+                   );
 		    } else {
 		    	if ($request->filled('parentid')) {
 		    		$parent = Permissions::findOrFail($request->input('parentid'));

@@ -16,12 +16,18 @@ class AddCorsHeader
     public function handle($request, Closure $next)
     {
         if ($request->isMethod('options')) {
-            return response()
+            return response()->json()
                 ->header('Access-Control-Allow-Origin', '*')
                 ->header("Access-Control-Allow-Headers",
-                    "x-requested-with,Content-Type,Bearer-Token");
+                    "x-requested-with,Content-Type,Authorization");
         }
-
-        return $next($request);
+        $response = $next($request);
+        $refclass = new \ReflectionClass($response);
+        if ($refclass->hasMethod('header')) {
+            $response->header('Access-Control-Allow-Origin', '*')
+                ->header("Access-Control-Allow-Headers",
+                    "x-requested-with,Content-Type,Authorization");
+        }
+        return $response;
     }
 }

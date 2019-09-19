@@ -27,9 +27,6 @@ class CreateUsersTable extends Migration
             $table->string('username');
             $table->string('realname', 30)
                 ->comment('真实名称');
-            $table->tinyInteger('is_super')
-	            ->default(0)
-	            ->comment('是否为超级管理员');
             $table->string('password', 100);
             $table->timestamps();
         });

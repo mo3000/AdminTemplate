@@ -107,12 +107,6 @@ class LoginController extends Controller
         //
     }
 
-    public function userinfo(Request $request)
-    {
-        $user = $request->user();
-        return new JsonResponse(0, '', $user->with('roles')->find($user->id));
-    }
-
     public function __construct()
     {
         $this->middleware('requirelogin')->except('login');

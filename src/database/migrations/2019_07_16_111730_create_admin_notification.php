@@ -14,13 +14,15 @@ class CreateAdminNotification extends Migration
     public function up()
     {
         Schema::create('admin_notification', function (Blueprint $table) {
-            $table->increments('id');
+            $table->uuid('id')->primary();
+            $table->string('type', 150);
             $table->json('data')
                 ->comment('内容');
-            $table->dateTime('read_at');
+            $table->dateTime('read_at')->nullable();
             $table->integer('notifiable_id');
-            $table->string('notifiable_type', 30);
+            $table->string('notifiable_type', 50);
             $table->timestamps();
+            $table->index(['notifiable_id', 'read_at']);
         });
     }
 

@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Admin;
 use App\Models\Auth\Roles;
+use App\Notifications\ChangePassword;
 use App\Utils\JsonResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -56,6 +59,18 @@ class UserController extends Controller
     	return new JsonResponse(0);
     }
 
+    public function resetPassword(Request $request)
+    {
+        Admin::find($request->input('id'))->notify(new ChangePassword());
+        return new JsonResponse(0);
+        $request->validate(['id' => 'required']);
+        $user = Admin::findOrFail($request->input('id'));
+        $user->password = Hash::make($request->input('123456'));
+        $user->save();
+        $user->notify();
+        return new JsonResponse(0);
+    }
+
     public function setStatus(Request $request)
     {
 
@@ -84,5 +99,21 @@ class UserController extends Controller
 		    ->sync($request->input('roles'));
 
     	return new JsonResponse(0);
+    }
+
+    public function userinfo(Request $request)
+    {
+        $user = $request->user();
+        $info = $user->with('roles')->find($user->id);
+        $info->notifications = DB::table('admin_notification')
+            ->select('id', 'data', 'read_at', 'created_at')
+            ->where('notifiable_id', $user->id)
+            ->limit(15)
+            ->get()
+            ->map(function ($v) {
+                $v->data = json_decode($v->data);
+                return $v;
+            });
+        return new JsonResponse(0, '', $info);
     }
 }

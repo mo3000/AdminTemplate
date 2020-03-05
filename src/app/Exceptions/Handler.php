@@ -8,6 +8,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -47,7 +48,7 @@ class Handler extends ExceptionHandler
             ->json($response->toArray())
             ->header('Access-Control-Allow-Origin', '*')
             ->header("Access-Control-Allow-Headers",
-                "x-requested-with,Content-Type,Bearer-Token");
+                "x-requested-with,Content-Type,Authorization");
     }
 
     /**
@@ -60,9 +61,9 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
 	    if ($exception instanceof AuthenticationException) {
-		    return $this->response(new JsonResponse(-2, $exception->getMessage()));
+            return response('Unauthorized', 401);
 	    } else if ($exception instanceof AuthorizationException) {
-		    return $this->response(new JsonResponse(-3, '无权限查看或操作此功能'));
+            return response('Unauthorized', 402);
 	    } else if ($exception instanceof ValidationException) {
     		return $this->response(new JsonResponse(-4, '', $exception->errors()));
 	    } else {

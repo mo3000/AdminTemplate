@@ -2,9 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Utils\JsonResponse;
 use Closure;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,7 +19,7 @@ class RejectIfNotAuthenticated
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        if (! Auth::guard($guard)->check()) {
+        if (request()->getPathInfo() != '/admin/login' && ! Auth::guard($guard)->check()) {
             throw new AuthenticationException('用户未登录');
         }
 

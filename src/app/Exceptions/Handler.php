@@ -34,10 +34,10 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param  \Exception  $exception
+     * @param  \Throwable  $exception
      * @return void
      */
-    public function report(Exception $exception)
+    public function report(\Throwable $exception)
     {
         parent::report($exception);
     }
@@ -55,10 +55,10 @@ class Handler extends ExceptionHandler
      * Render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
+     * @param  \Throwable  $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
+    public function render($request, \Throwable $exception)
     {
 	    if ($exception instanceof AuthenticationException) {
             return response('Unauthorized', 401);
@@ -67,8 +67,9 @@ class Handler extends ExceptionHandler
 	    } else if ($exception instanceof ValidationException) {
     		return $this->response(new JsonResponse(-4, '', $exception->errors()));
 	    } else {
-	        dd($exception);
-	        return $this->response(new JsonResponse(-1, $exception->getMessage()));
+//	        dd($exception);
+	        return parent::render($request, $exception);
+	        return $this->response(new JsonResponse(-1, $exception->getTrace()));
         }
         return parent::render($request, $exception);
     }

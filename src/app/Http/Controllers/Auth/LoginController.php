@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Models\Auth\Roles;
 use App\Utils\JsonResponse;
 use Illuminate\Contracts\Auth\Guard;
-use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -16,7 +16,7 @@ use Lcobucci\JWT\Signer\Key;
 
 class LoginController extends Controller
 {
-    use ThrottlesLogins;
+//    use ThrottlesLogins;
 
     protected function username()
     {
@@ -42,8 +42,7 @@ class LoginController extends Controller
 
     protected function sendLoginResponse(Request $request)
     {
-        $this->clearLoginAttempts($request);
-
+        Cache::put($request->input($this->username()), 0);
         $user = $this->guard()->user();
         $roles = Roles::whereHas('admins', function ($query) use ($user) {
             $query->where('id', $user->id);
@@ -73,6 +72,20 @@ class LoginController extends Controller
         return new JsonResponse(-1, trans('auth.failed'));
     }
 
+    private function hasTooManyLoginAttempts($request)
+    {
+        $username = $request->input('username');
+        if (Cache::has("lock-$username")) {
+            return true;
+        }
+        $times = Cache::increment("login-$username");
+        $tooMany = $times >= 10;
+        if ($tooMany) {
+            Cache::add("lock-$username", 1, 300);
+        }
+        return $tooMany;
+    }
+
     public function login(Request $request)
     {
         $this->validate($request, [
@@ -82,15 +95,12 @@ class LoginController extends Controller
         );
 
         if ($this->hasTooManyLoginAttempts($request)) {
-            $this->fireLockoutEvent($request);
-            $this->sendLockoutResponse($request);
+            return new JsonResponse(-1, '登录次数过多被锁定');
         }
 
         if ($this->attemptLogin($request)) {
             return $this->sendLoginResponse($request);
         }
-
-        $this->incrementLoginAttempts($request);
 
         return $this->sendFailedLoginResponse($request);
     }

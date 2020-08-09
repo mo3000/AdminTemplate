@@ -42,7 +42,7 @@ class LoginController extends Controller
 
     protected function sendLoginResponse(Request $request)
     {
-        Cache::put($request->input($this->username()), 0);
+        Cache::put('login-'.$request->input($this->username()), 0);
         $user = $this->guard()->user();
         $roles = Roles::whereHas('admins', function ($query) use ($user) {
             $query->where('id', $user->id);
@@ -59,6 +59,7 @@ class LoginController extends Controller
                 ->relatedTo($user->id)
                 ->getToken((new Sha256()), (new Key(config('auth.token_secret_key'))))),
             'roles' => $roles,
+            'realname' => $user->realname,
         ]);
     }
 
@@ -74,7 +75,7 @@ class LoginController extends Controller
 
     private function hasTooManyLoginAttempts($request)
     {
-        $username = $request->input('username');
+        $username = $request->input($this->username());
         if (Cache::has("lock-$username")) {
             return true;
         }

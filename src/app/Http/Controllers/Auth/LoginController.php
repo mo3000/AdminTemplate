@@ -42,7 +42,7 @@ class LoginController extends Controller
 
     protected function sendLoginResponse(Request $request)
     {
-        Cache::put('login-'.$request->input($this->username()), 0);
+        Cache::forget('login-'.$request->input($this->username()));
         $user = $this->guard()->user();
         $roles = Roles::whereHas('admins', function ($query) use ($user) {
             $query->where('id', $user->id);
@@ -54,7 +54,7 @@ class LoginController extends Controller
 
 
         return new JsonResponse(0, '', [
-            'token' => strval((new Builder())
+            'token' => ((new Builder())
                 ->issuedAt(time())
                 ->relatedTo($user->id)
                 ->getToken((new Sha256()), (new Key(config('auth.token_secret_key'))))),
@@ -82,7 +82,7 @@ class LoginController extends Controller
         $times = Cache::increment("login-$username");
         $tooMany = $times >= 10;
         if ($tooMany) {
-            Cache::add("lock-$username", 1, 300);
+            Cache::put("lock-$username", 1, 300);
         }
         return $tooMany;
     }

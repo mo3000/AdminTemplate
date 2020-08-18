@@ -15,7 +15,7 @@ class AddInitData extends Command
      *
      * @var string
      */
-    protected $signature = 'AddInitData';
+    protected $signature = 'admin:init';
 
     /**
      * The console command description.

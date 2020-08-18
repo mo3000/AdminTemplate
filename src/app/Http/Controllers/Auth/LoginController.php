@@ -54,10 +54,10 @@ class LoginController extends Controller
 
 
         return new JsonResponse(0, '', [
-            'token' => ((new Builder())
+            'token' => (((new Builder())
                 ->issuedAt(time())
                 ->relatedTo($user->id)
-                ->getToken((new Sha256()), (new Key(config('auth.token_secret_key'))))),
+                ->getToken((new Sha256()), (new Key(config('auth.token_secret_key'))))))->getPayload(),
             'roles' => $roles,
             'realname' => $user->realname,
         ]);

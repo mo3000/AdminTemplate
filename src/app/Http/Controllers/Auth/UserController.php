@@ -22,7 +22,7 @@ class UserController extends Controller
 		    	$query->where('admin.realname', 'like', '%'.$request->input('realname').'%');
 		    })
 		    ->when($request->filled('username'), function ($query) use ($request) {
-			    $query->where('admin.v', 'like', '%'.$request->input('username').'%');
+			    $query->where('admin.username', 'like', '%'.$request->input('username').'%');
 		    })
 		    ->when($request->filled('rolename'), function ($query) use ($request) {
 			    $query->where('roles.display_name', 'like', '%'.$request->input('rolename').'%');

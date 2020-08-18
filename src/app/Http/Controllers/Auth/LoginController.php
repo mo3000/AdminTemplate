@@ -57,7 +57,7 @@ class LoginController extends Controller
             'token' => (((new Builder())
                 ->issuedAt(time())
                 ->relatedTo($user->id)
-                ->getToken((new Sha256()), (new Key(config('auth.token_secret_key'))))))->getPayload(),
+                ->getToken((new Sha256()), (new Key(config('auth.token_secret_key'))))))->__toString(),
             'roles' => $roles,
             'realname' => $user->realname,
         ]);
